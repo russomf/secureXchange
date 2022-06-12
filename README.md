@@ -1,5 +1,7 @@
 # secureXchange
 
+To view this page in action, visit https://htmlpreview.github.io/?https://github.com/russomf/secureXchange/blob/main/secureXchange.html .
+
 ## About
 
 This web page is a toolkit that enables the secure exchange of short messages. It includes tools for the generation of RSA encryption keys, as well as the encryption and decryption of messages using encryption keys. All functionality is embedded within this single file, including all HTML, CSS and JavaScript. To share this toolkit with others, simply share a copy of this single HTML file.
