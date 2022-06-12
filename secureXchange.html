@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>secureXchange: A Secure Message Exchange Toolkit</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-size: 10pt;
+        }
+
+        html,
+        body {
+            font-family: sans-serif;
+            line-height: 1.2rem;
+            background-color: rgb(250, 250, 250);
+        }
+
+        .shadowtext {
+            margin-left: 10px;
+            color: black;
+            font-weight: bold;
+            text-shadow:
+                1px 1px 1px #EEE,
+                1px -1px 1px #EEE,
+                -1px 1px 1px #EEE,
+                -1px -1px 1px #EEE;
+        }
+
+        h1 {
+            font-size: 18pt;
+        }
+
+        h2 {
+            font-size: 14pt;
+        }
+
+        input[type="button"] {
+            min-width: 4rem;
+            font-weight: bold;
+        }
+
+        .wrapper {
+            padding: .2rem .5rem;
+            display: grid;
+            grid-template-columns: 50% 50%;
+        }
+
+        .label {
+            font-weight: bold;
+            margin-top: 1em;
+        }
+
+        .buttons-group {
+            text-align: right;
+            margin-top: 1em;
+        }
+
+        .plaintext-message-label {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .plaintext-buttons {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .plaintext-message {
+            grid-column-start: 1;
+            grid-column-end: 3;
+            grid-row: 2;
+            height: 150px;
+            width: 100%;
+        }
+
+        .buttons-panel {
+            grid-column-start: 1;
+            grid-column-end: 3;
+            padding: 1em 1em 1em 1em;
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            border-radius: 5px;
+            background-color: cadetblue;
+        }
+
+        .encrypt-buttons {
+            display: flex;
+            justify-content: space-between;
+            grid-row: 3;
+        }
+
+        .decrypt-button {
+            align-self: flex-end;
+        }
+
+        .ciphertext-message-label {
+            grid-column: 1;
+            grid-row: 4;
+        }
+
+        .ciphertext-buttons {
+            grid-column: 2;
+            grid-row: 4;
+        }
+
+        .ciphertext-message {
+            grid-column-start: 1;
+            grid-column-end: 3;
+            grid-row: 5;
+            font-family: monospace;
+            height: 150px;
+            width: 100%;
+        }
+
+        .key-buttons {
+            grid-row: 1;
+        }
+
+        .public-key-label {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .public-key-buttons {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .exported-public-key {
+            width: 100%;
+            height: 100px;
+            word-wrap: break-word;
+            padding-left: .5rem;
+            font-family: monospace;
+            grid-column-start: 1;
+            grid-column-end: 3;
+            grid-row: 3;
+        }
+
+        .private-key-label {
+            grid-column: 1;
+            grid-row: 4;
+        }
+
+        .private-key-buttons {
+            grid-column: 2;
+            grid-row: 4;
+        }
+
+        .exported-private-key {
+            width: 100%;
+            height: 250px;
+            word-wrap: break-word;
+            padding-left: .5rem;
+            margin-bottom: 1em;
+            font-family: monospace;
+            grid-column-start: 1;
+            grid-column-end: 3;
+            grid-row: 5;
+        }
+
+        .emph-box {
+            text-align: left;
+            color: #222;
+            font-size: 1.06em;
+            background: #f2f2f2;
+            border: .1em solid #bbb;
+            padding: 0 1.2em 1.1em;
+            margin: 0;
+        }
+
+        /* CSS-defined tabstrip */
+        .tabstrip {
+            width: 100%;
+            height: 550px;
+            /* height: 100%; */
+            /* TODO: How to make this the size of the page ? */
+        }
+
+        .tabstrip>ul,
+        .tabstrip>ul>li {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .tabstrip,
+        .tabstrip input[type="radio"]:checked+label {
+            position: relative;
+        }
+
+        .tabstrip>ul>li,
+        .tabstrip input[type="radio"]+label {
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .tabstrip>ul>li>div,
+        .tabstrip input[type="radio"] {
+            position: absolute;
+        }
+
+        .tabstrip>ul>li>div,
+        .tabstrip input[type="radio"]+label {
+            border: solid 1px #ccc;
+        }
+
+        .tabstrip {
+            color: #404040;
+        }
+
+        .tabstrip>ul>li {
+            vertical-align: top;
+        }
+
+        .tabstrip>ul>li:first-child {
+            margin-left: 8px;
+        }
+
+        .tabstrip>ul>li>div {
+            top: 30px;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 8px;
+            overflow: auto;
+            background: #fff;
+            box-sizing: border-box;
+        }
+
+        .tabstrip input[type="radio"] {
+            opacity: 0;
+        }
+
+        .tabstrip input[type="radio"]:disabled+label {
+            opacity: .5;
+            cursor: no-drop;
+        }
+
+        .tabstrip input[type="radio"]+label {
+            margin: 0 2px 0 0;
+            padding: 1 18px 0 0;
+            line-height: 32px;
+            background: #f1f1f1;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            user-select: none;
+            min-width: 150px;
+        }
+
+        .tabstrip input[type="radio"]:checked+label {
+            z-index: 1;
+            background: #fff;
+            border-bottom-color: #fff;
+            cursor: default;
+        }
+
+        .tabstrip input[type="radio"]~div {
+            display: none;
+        }
+
+        .tabstrip input[type="radio"]:checked:not(:disabled)~div {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Secure Short Message Exchange Toolkit</h1>
+
+    <div class="tabstrip">
+        <ul>
+            <li>
+                <input type="radio" name="tabstrip-0" checked="checked" id="tabstrip-0-0" />
+                <label for="tabstrip-0-0">Crypto Keys</label>
+                <div>
+                    <div class="wrapper">
+                        <div class="key-buttons buttons-panel">
+                            <input class="generate-keys-button" type="button" value="Generate RSA Keys">
+                            <span class="shadowtext">Key Len:</span>
+                            <select class="generate-keylen">
+                                <option value="1024">1024</option>
+                                <option value="2048" selected>2048</option>
+                                <option value="3072">3072</option>
+                                <option value="4096">4096</option>
+                            </select>
+                            <span class="shadowtext">Hash:</span>
+                            <select class="generate-hashalg">
+                                <option value="256" selected>SHA-256</option>
+                                <option value="384">SHA-384</option>
+                                <option value="512">SHA-512</option>
+                            </select>
+                            <span class="shadowtext">Max length:</span>
+                            <span class="generate-maxlen" style="background-color:white;padding:2px;">190</span>
+
+                        </div>
+
+                        <div class="public-key-label label">PUBLIC KEY</div>
+                        <div class="public-key-buttons buttons-group">
+                            <input class="clear-public-key-button" type="button" title="Clear" value="Clear">
+                            <input class="copy-public-key-button" type="button" title="Copy" value="Copy">
+                            <input class="paste-public-key-button" type="button" title="Paste" value="Paste">
+                            <input class="export-public-key-button" type="button" title="Export" value="Export">
+                        </div>
+                        <textarea class="exported-public-key"></textarea>
+
+                        <div class="private-key-label label">PRIVATE KEY</div>
+                        <div class="private-key-buttons buttons-group">
+                            <input class="clear-private-key-button" type="button" title="Clear" value="Clear">
+                            <input class="copy-private-key-button" type="button" title="Copy" value="Copy">
+                            <input class="paste-private-key-button" type="button" title="Paste" value="Paste">
+                            <input class="export-private-key-button" type="button" title="Export" value="Export">
+                        </div>
+                        <textarea class="exported-private-key"></textarea>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <input type="radio" name="tabstrip-0" id="tabstrip-0-1" />
+                <label for="tabstrip-0-1">Encrypt/Decrypt</label>
+                <div>
+                    <div class="wrapper">
+                        <div class="plaintext-message-label label">Plaintext Message</div>
+                        <div class="plaintext-buttons buttons-group">
+                            <input class="clear-plaintext-button" type="button" title="Clear" value="Clear">
+                            <input class="copy-plaintext-button" type="button" title="Copy" value="Copy">
+                            <input class="paste-plaintext-button" type="button" title="Paste" value="Paste">
+                            <input class="export-plaintext-button" type="button" title="Export" value="Export">
+                        </div>
+                        <textarea class="plaintext-message"></textarea>
+                        <div class="encrypt-buttons buttons-panel">
+                            <div>
+                                <input class="encrypt-button" type="button" value="⇓ Encrypt w/ Public Key ⇓">
+                                <span class="shadowtext">Key Len:</span>
+                                <select class="encrypt-keylen">
+                                    <option value="1024">1024</option>
+                                    <option value="2048" selected>2048</option>
+                                    <option value="3072">3072</option>
+                                    <option value="4096">4096</option>
+                                </select>
+                                <span class="shadowtext">Hash:</span>
+                                <select class="encrypt-hashalg">
+                                    <option value="256" selected>SHA-256</option>
+                                    <option value="384">SHA-384</option>
+                                    <option value="512">SHA-512</option>
+                                </select>
+                                <span class="shadowtext">Max length:</span>
+                                <span class="encrypt-maxlen" style="background-color:white;padding:2px;">190</span>
+                            </div>
+                            <input class="decrypt-button" type="button" value="⇑ Decrypt w/ Private Key ⇑">
+                        </div>
+
+                        <div class="ciphertext-message-label label">Ciphertext Message</div>
+                        <div class="ciphertext-buttons buttons-group">
+                            <input class="clear-ciphertext-button" type="button" title="Clear" value="Clear">
+                            <input class="copy-ciphertext-button" type="button" title="Copy" value="Copy">
+                            <input class="paste-ciphertext-button" type="button" title="Paste" value="Paste">
+                            <input class="export-ciphertext-button" type="button" title="Export" value="Export">
+                        </div>
+                        <textarea class="ciphertext-message"></textarea>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <input type="radio" name="tabstrip-0" id="tabstrip-0-2" />
+                <label for="tabstrip-0-2">About</label>
+                <div>
+                    <h2>About</h2>
+                    <p>
+                        This web page is a toolkit that enables the <u>secure exchange of short messages</u>.
+                        It includes tools for the generation of RSA encryption keys, as well as the encryption
+                        and decryption of messages using encryption keys.
+                        All functionality is embedded within this single file,
+                        including all HTML, CSS and JavaScript.
+                        To share this toolkit with others,
+                        simply share a copy of this single HTML file.
+                    </p>
+                    <p>
+                        Messages are exchanged using <a href="https://en.wikipedia.org/wiki/Public-key_cryptography"
+                            _target="blank">
+                            Public-key (asymmetric) cryptography</a> and an <a
+                            href="https://en.wikipedia.org/wiki/RSA_(cryptosystem)" _target="blank">
+                            RSA encryption key-pair</a>. You may use your own RSA encryption key-pair
+                        or generate a new key-pair using the "Crypto Keys" tab on this page.
+                        The algorithm used to generate keys is a public-key
+                        encryption scheme combining the RSA algorithm with the
+                        Optimal Asymmetric Encryption Padding (OAEP) method.
+                        All cryptographic functions are performed using the <a
+                            href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto"
+                            target="_blank">SubtleCrypto Web API</a> standard implemented by this browser.
+                        For this reason a modern browser must be used that <a
+                            href="https://caniuse.com/?search=SubtleCrypto" target="_blank">
+                            implements this API</a>, such as Chrome, Firefox, or Edge.
+                    </p>
+                    <p>
+                        Please note that the maximum message length is determined by the key length and hash
+                        used to generate the original key-pair. Maximum message length is computed and displayed 
+                        wherever key length and hash are set.
+                    </p>
+                    <h2>Receiving Secure Messages</h2>
+                    <p>The following steps outline how to receive a secure message. </p>
+                    <ol>
+                        <li>Enter a suitable RSA private encryption key in the PRIVATE KEY text area
+                            of the "Crypto Keys" tab.
+                            You may use an existing private key, or generate a new RSA encryption key-pair
+                            by pressing the "Generate RSA Keys" button on the tab.
+                            New keys will be generated and placed in the text areas for you.
+                            When generating new keys, please make sure to choose key length and hash parameters 
+                            that permit the encryption of a message longer than the anticipated message.
+                        </li>
+                        <li>
+                            Share your public key with the sender to be used to encrypt the message.
+                        </li>
+                        <li>
+                            When the ciphertext message is received from the sender,
+                            enter it into the "Ciphertext Message" text area on the
+                            "Encrypt/Decrypt" tab and press the "Decrypt w/ Private Key" button.
+                            If the decryption succeeds, the decrypted message will appear in the
+                            "Plaintext Message" text area.
+                        </li>
+                    </ol>
+
+                    <h2>Sending Secure Messages</h2>
+                    <p>The following steps outline how to send a secure message.</p>
+                    <ol>
+                        <li>
+                            Obtain the receiver's RSA public key and paste it into the PUBLIC KEY text area
+                            on the "Crypto Keys" tab. Select the key length and hash parameters matching the 
+                            key pair.
+                        </li>
+                        <li>
+                            Enter then message to encrypt into the "Plaintext Message" text area of the
+                            "Encrypt/Decrypt" tab and press the "Encrypt w/ Public Key" button.
+                            If the encryption succeeds, the encrypted message will appear in the
+                            "Ciphertext Message" text area.
+                        </li>
+                        <li>
+                            Copy the generated ciphertext and send it to the recipient.
+                            It is safe to send this message in the open because it only may be
+                            unencrypted using the corresponding RSA private encryption key.
+                        </li>
+                    </ol>
+                    <h2>Author</h2>
+                    <ul>
+                        <li><a href="mailto:russomf@gmail.com">Mark F. Russo, PhD</a></li>
+                    </ul>
+                    <h2>License</h2>
+                    <blockquote class="emph-box">
+                        <p>
+                            This program is free software: you can redistribute it and/or modify
+                            it under the terms of the GNU General Public License as published by
+                            the Free Software Foundation, either version 3 of the License, or
+                            (at your option) any later version.</p>
+                        <p>
+                            This program is distributed in the hope that it will be useful,
+                            but WITHOUT ANY WARRANTY; without even the implied warranty of
+                            MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See
+                            <a href="https://www.gnu.org/licenses/gpl.html" target="_blank">
+                                the GNU General Public License</a> for more details.
+                        </p>
+                    </blockquote>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        (() => {
+            // Fetch plaintext-message textbox, and encode it in a form we can use for the encrypt operation.
+            // function getMessageEncoding() {
+            //     const messageBox = document.querySelector(".plaintext-message");
+            //     let message = messageBox.value;
+            //     let enc = new TextEncoder();
+            //     return enc.encode(message);
+            // }
+
+            // Get encoded message, encrypt it and display.
+            async function encryptMessage() {
+
+                try {
+                    // Reparse key from textarea
+                    const publicKeyElement = document.querySelector(".exported-public-key");
+                    const skey = publicKeyElement.value.trim();
+                    if (skey.length === 0) {
+                        alert("Please enter or generate a PUBLIC KEY to use for encryption.");
+                        return;
+                    }
+                    const key = await importRsaPublicKey(skey);
+
+                    // Get message and check length
+                    const messageBox = document.querySelector(".plaintext-message");
+                    let message = messageBox.value;
+                    let enc = new TextEncoder();
+                    const encoded_msg = enc.encode(message);
+                    const emlen = encoded_msg.length;
+                    const mLen = updateMaxLen("encrypt");
+                    if (mLen < emlen) {
+                        alert(`Message to encrypt is too long. It is ${emlen} characters long. It must be ${mLen} characters or fewer using the parameters selected.`);
+                        return;
+                    }
+
+                    // Encrypt message
+                    const ciphertext = await window.crypto.subtle.encrypt(
+                        { name: "RSA-OAEP" },
+                        key,
+                        encoded_msg
+                    );
+
+                    // Encode encrypted message and display
+                    let arr = new Uint8Array(ciphertext, 0, 5);
+                    const ciphertextMessage = document.querySelector(".ciphertext-message");
+                    ciphertextMessage.value = window.btoa(ab2str(arr.buffer));  // pack
+                } catch (err) {
+                    if (err.name === 'OperationError') {
+                        alert("Encryption failed. Please make sure encryption parameters match key.");
+                    } else {
+                        alert(err);
+                    }
+                }
+            }
+
+            // Fetch the ciphertext, decrypt it, and display.
+            async function decryptMessage() {
+                try {
+                    // Get ciphertext
+                    const msg = document.querySelector(".ciphertext-message").value.trim();
+                    if (msg.length === 0) {
+                        alert("Please enter the Ciphertext Message to decrypt.");
+                        return;
+                    }
+                    const ciphertext = str2ab(window.atob(msg))
+
+                    // Reparse key from textarea
+                    const privateKeyElement = document.querySelector(".exported-private-key");
+
+                    const skey = privateKeyElement.value.trim();
+                    if (skey.length === 0) {
+                        alert("Please enter or generate a PRIVATE KEY to use for decryption.");
+                        return;
+                    }
+                    const key = await importRsaPrivateKey(skey);
+
+                    // Decrypt message
+                    let decrypted = await window.crypto.subtle.decrypt(
+                        { name: "RSA-OAEP" },
+                        key,
+                        ciphertext
+                    );
+
+                    // Decode and display
+                    let dec = new TextDecoder();
+                    const plaintextMessage = document.querySelector(".plaintext-message");
+                    const ptmessage = dec.decode(decrypted);
+                    plaintextMessage.value = ptmessage;
+                } catch (err) {
+                    if (err.name === 'OperationError') {
+                        alert("Decryption failed. Please make sure decryption parameters match key.");
+                    } else {
+                        alert(err);
+                    }
+                }
+            }
+
+            // Generate a new RSA encryption key pair.
+            // mLen = kLenBits / 8 - 2 * hLenBits / 8 - 2
+            // 2048 / 8 - 2 * 256 / 8 - 2 = 256 - 64 - 2 = 190 byte message length
+            function generateNewRsaKeyPair() {
+                let keylen = parseInt(qs(".generate-keylen").value);
+                let hashalg = `SHA-${parseInt(qs(".generate-hashalg").value)}`;
+                window.crypto.subtle.generateKey({
+                    name: "RSA-OAEP",
+                    // Consider using a 4096-bit key for systems that require long-term security
+                    // modulusLength: 2048,
+                    modulusLength: keylen,
+                    publicExponent: new Uint8Array([1, 0, 1]),
+                    hash: { name: hashalg },
+                    // hash: { name: "SHA-256" },
+                },
+                    true,
+                    ["encrypt", "decrypt"]
+                ).then((keyPair) => {
+                    // Export keys to textareas
+                    exportRsaPrivateKey(keyPair.privateKey);
+                    exportRsaPublicKey(keyPair.publicKey);
+                }).catch(err => {
+                    alert(err);
+                });
+            }
+
+            // Export the given key and write it into the "exported-private-key" space.
+            async function exportRsaPrivateKey(key) {
+                const exported = await window.crypto.subtle.exportKey(
+                    "pkcs8",    // for private only
+                    key
+                );
+                const exportedAsString = ab2str(exported);
+                const exportedAsBase64 = window.btoa(exportedAsString);
+                const pemExported = `-----BEGIN PRIVATE KEY-----\n${exportedAsBase64}\n-----END PRIVATE KEY-----`;
+
+                const exportKeyOutput = document.querySelector(".exported-private-key");
+                exportKeyOutput.value = pemExported;
+            }
+
+            // Export the given key in PEM format and display.
+            async function exportRsaPublicKey(key) {
+                const exported = await window.crypto.subtle.exportKey(
+                    "spki",     // for public only
+                    key
+                );
+                const exportedAsString = ab2str(exported);
+                const exportedAsBase64 = window.btoa(exportedAsString);
+                const pemExported = `-----BEGIN PUBLIC KEY-----\n${exportedAsBase64}\n-----END PUBLIC KEY-----`;
+
+                const exportKeyOutput = document.querySelector(".exported-public-key");
+                exportKeyOutput.value = pemExported;
+            }
+
+            // Import a PEM formatted RSA private key, to use for decryption.
+            // Takes a PEM encoded key string and returns a Promise that resolves to a private CryptoKey.
+            // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/importKey#examples
+            function importRsaPrivateKey(pem) {
+                let hashalg = `SHA-${parseInt(qs(".generate-hashalg").value)}`;
+
+                // Fetch the part of the PEM string between header and footer
+                const pemHeader = "-----BEGIN PRIVATE KEY-----";
+                const pemFooter = "-----END PRIVATE KEY-----";
+                const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
+
+                // base64 decode the string to binary data and then an ArrayBuffer
+                const binaryDer = str2ab(window.atob(pemContents));
+
+                return window.crypto.subtle.importKey(
+                    "pkcs8",
+                    binaryDer,
+                    {
+                        name: "RSA-OAEP",
+                        hash: hashalg,
+                        // hash: "SHA-256",
+                    },
+                    true,
+                    ["decrypt"]
+                );
+            }
+
+            // Import a public key as a PEM encoded string.
+            // https://github.com/mdn/dom-examples/tree/master/web-crypto/import-key
+            function importRsaPublicKey(pem) {
+                let hashalg = `SHA-${parseInt(qs(".generate-hashalg").value)}`;
+
+                // Fetch the part of the PEM string between header and footer
+                const pemHeader = "-----BEGIN PUBLIC KEY-----";
+                const pemFooter = "-----END PUBLIC KEY-----";
+                const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
+
+                // base64 decode the string to binary data and then to an ArrayBuffer
+                const binaryDer = str2ab(window.atob(pemContents));
+
+                // Return a Promise that resolves to a public CryptoKey
+                return window.crypto.subtle.importKey(
+                    "spki",
+                    binaryDer,
+                    {
+                        name: "RSA-OAEP",
+                        hash: { name: hashalg },
+                        // hash: { name: "SHA-256" },
+                    },
+                    true,
+                    ["encrypt"]
+                );
+            }
+
+            // Wrap an ArrayBuffer with a Uint8Array view and then convert to a string
+            // from https://developer.chrome.com/blog/how-to-convert-arraybuffer-to-and-from-string/
+            function ab2str(buf) {
+                return String.fromCharCode.apply(null, new Uint8Array(buf));
+            }
+
+            // Convert a string to ArrayBuffer with an Uint8Array view
+            function str2ab(str) {
+                var buf = new ArrayBuffer(str.length);
+                var bufView = new Uint8Array(buf);
+                for (var i = 0, strLen = str.length; i < strLen; i++) { bufView[i] = str.charCodeAt(i); }
+                return buf;
+            }
+
+            // Download text as a file named filename
+            function download(filename, text) {
+                const element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                element.setAttribute('download', filename);
+
+                element.style.display = 'none';
+                document.body.appendChild(element);
+
+                element.click();
+                document.body.removeChild(element);
+            }
+
+            // document.querySelector(...) shorthand
+            function qs(query) { return document.querySelector(query) }
+
+            // Update the maximum message length that can be encrypted
+            function updateMaxLen(prefix) {
+                // Get keylen, hash type, and maxlen elements
+                let kLenBits = parseInt(qs(`.${prefix}-keylen`).value);
+                let hLenBits = parseInt(qs(`.${prefix}-hashalg`).value);
+                let mLen = Math.ceil(kLenBits / 8) - 2 * Math.ceil(hLenBits / 8) - 2;
+                if (mLen < 0) {
+                    qs(`.${prefix}-maxlen`).innerHTML = "N/A";
+                } else {
+                    qs(`.${prefix}-maxlen`).innerHTML = mLen;
+                }
+                return mLen
+            }
+
+            // Attach event handlers
+            qs(".clear-plaintext-button").addEventListener("click", () => {
+                qs(".plaintext-message").value = "";
+            });
+            qs(".copy-plaintext-button").addEventListener("click", () => {
+                navigator.clipboard.writeText(qs(".plaintext-message").value);
+            });
+            qs(".paste-plaintext-button").addEventListener("click", () => {
+                navigator.clipboard.readText().then(txt => {
+                    qs(".plaintext-message").value = txt;
+                });
+            });
+            qs(".export-plaintext-button").addEventListener("click", () => {
+                download("unencrypted.txt", qs(".plaintext-message").value);
+            });
+
+            qs(".clear-ciphertext-button").addEventListener("click", () => {
+                qs(".ciphertext-message").value = "";
+            });
+            qs(".copy-ciphertext-button").addEventListener("click", () => {
+                navigator.clipboard.writeText(qs(".ciphertext-message").value);
+            });
+            qs(".paste-ciphertext-button").addEventListener("click", () => {
+                navigator.clipboard.readText().then(txt => {
+                    qs(".ciphertext-message").value = txt;
+                });
+            });
+            qs(".export-ciphertext-button").addEventListener("click", () => {
+                download("encrypted.txt", qs(".ciphertext-message").value);
+            });
+
+            qs(".clear-private-key-button").addEventListener("click", () => {
+                qs(".exported-private-key").value = "";
+            });
+            qs(".copy-private-key-button").addEventListener("click", () => {
+                navigator.clipboard.writeText(qs(".exported-private-key").value);
+            });
+            qs(".paste-private-key-button").addEventListener("click", () => {
+                navigator.clipboard.readText().then(txt => {
+                    qs(".exported-private-key").value = txt;
+                });
+            });
+            qs(".export-private-key-button").addEventListener("click", () => {
+                download("private_key.pem", qs(".exported-public-key").value);
+            });
+
+            qs(".clear-public-key-button").addEventListener("click", () => {
+                qs(".exported-public-key").value = "";
+            });
+            qs(".copy-public-key-button").addEventListener("click", () => {
+                navigator.clipboard.writeText(qs(".exported-public-key").value);
+            });
+            qs(".paste-public-key-button").addEventListener("click", () => {
+                navigator.clipboard.readText().then(txt => {
+                    qs(".exported-public-key").value = txt;
+                });
+            });
+            qs(".export-public-key-button").addEventListener("click", () => {
+                download("public_key.pem", qs(".exported-public-key").value);
+            });
+
+            qs(".generate-keys-button").addEventListener("click", () => {
+                generateNewRsaKeyPair();
+            });
+
+            qs(".encrypt-button").addEventListener("click", () => {
+                encryptMessage();
+            });
+
+            qs(".decrypt-button").addEventListener("click", () => {
+                decryptMessage();
+            });
+
+            qs(".encrypt-keylen").addEventListener("change", () => { updateMaxLen("encrypt"); });
+            qs(".encrypt-hashalg").addEventListener("change", () => { updateMaxLen("encrypt"); });
+            qs(".generate-keylen").addEventListener("change", () => { updateMaxLen("generate"); });
+            qs(".generate-hashalg").addEventListener("change", () => { updateMaxLen("generate"); });
+        })();
+    </script>
+</body>
+
+</html>
