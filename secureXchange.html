@@ -174,8 +174,6 @@
         .tabstrip {
             width: 100%;
             height: 550px;
-            /* height: 100%; */
-            /* TODO: How to make this the size of the page ? */
         }
 
         .tabstrip>ul,
@@ -468,14 +466,6 @@
 
     <script>
         (() => {
-            // Fetch plaintext-message textbox, and encode it in a form we can use for the encrypt operation.
-            // function getMessageEncoding() {
-            //     const messageBox = document.querySelector(".plaintext-message");
-            //     let message = messageBox.value;
-            //     let enc = new TextEncoder();
-            //     return enc.encode(message);
-            // }
-
             // Get encoded message, encrypt it and display.
             async function encryptMessage() {
 
@@ -570,14 +560,11 @@
                 let keylen = parseInt(qs(".generate-keylen").value);
                 let hashalg = `SHA-${parseInt(qs(".generate-hashalg").value)}`;
                 window.crypto.subtle.generateKey({
-                    name: "RSA-OAEP",
-                    // Consider using a 4096-bit key for systems that require long-term security
-                    // modulusLength: 2048,
-                    modulusLength: keylen,
-                    publicExponent: new Uint8Array([1, 0, 1]),
-                    hash: { name: hashalg },
-                    // hash: { name: "SHA-256" },
-                },
+                        name: "RSA-OAEP",
+                        modulusLength: keylen,
+                        publicExponent: new Uint8Array([1, 0, 1]),
+                        hash: { name: hashalg },
+                    },
                     true,
                     ["encrypt", "decrypt"]
                 ).then((keyPair) => {
@@ -637,7 +624,6 @@
                     {
                         name: "RSA-OAEP",
                         hash: hashalg,
-                        // hash: "SHA-256",
                     },
                     true,
                     ["decrypt"]
@@ -664,7 +650,6 @@
                     {
                         name: "RSA-OAEP",
                         hash: { name: hashalg },
-                        // hash: { name: "SHA-256" },
                     },
                     true,
                     ["encrypt"]
